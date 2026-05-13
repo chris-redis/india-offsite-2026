@@ -1,0 +1,22 @@
+# Core dependencies
+python-dotenv>=1.0.0
+requests>=2.31.0
+
+# Database
+pymysql>=1.1.0
+
+# AWS
+boto3>=1.28.0
+
+# GCP
+google-cloud-storage>=2.10.0
+google-cloud-compute>=1.14.0
+google-auth>=2.22.0
+
+# Optional: Data processing (uncomment if needed)
+# pandas>=2.0.0
+# numpy>=1.21.0
+
+# Optional: Excel support (uncomment if needed)
+# openpyxl>=3.1.0
+

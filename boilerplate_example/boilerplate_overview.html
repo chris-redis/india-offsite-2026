@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redis Cloud Operations Boilerplate</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e94560;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            border-bottom: 2px solid #e94560;
+        }
+        .ascii-art {
+            font-size: 10px;
+            line-height: 1.1;
+            color: #00ff88;
+            text-shadow: 0 0 10px #00ff88;
+            white-space: pre;
+            margin: 20px 0;
+        }
+        h1 { font-size: 3em; color: #fff; text-shadow: 0 0 20px #e94560; margin-bottom: 20px; text-align: center; }
+        h2 { font-size: 2em; color: #00ff88; margin: 30px 0 20px; text-align: center; }
+        h3 { font-size: 1.5em; color: #ffd700; margin: 20px 0; }
+        p, li { font-size: 1.2em; color: #ccc; line-height: 1.8; max-width: 900px; }
+        ul { list-style: none; padding-left: 20px; }
+        li::before { content: "► "; color: #e94560; }
+        .highlight { color: #00ff88; font-weight: bold; }
+        .warning { color: #ffd700; }
+        .box {
+            border: 2px solid #e94560;
+            padding: 30px;
+            margin: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            max-width: 1000px;
+        }
+        .connector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            max-width: 1000px;
+        }
+        .connector-card {
+            background: rgba(0,255,136,0.1);
+            border: 1px solid #00ff88;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .connector-card h4 { color: #00ff88; margin-bottom: 8px; }
+        .connector-card p { font-size: 0.9em; color: #aaa; }
+        .time-saved {
+            font-size: 4em;
+            color: #00ff88;
+            text-shadow: 0 0 30px #00ff88;
+            margin: 20px 0;
+        }
+        .code-block {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            color: #00ff88;
+            overflow-x: auto;
+            max-width: 900px;
+            margin: 15px 0;
+        }
+        .flow-diagram { color: #ffd700; font-size: 14px; line-height: 1.3; }
+        .nav { position: fixed; bottom: 20px; right: 20px; z-index: 100; }
+        .nav a {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #e94560;
+            color: #fff;
+            text-decoration: none;
+            margin: 5px;
+            border-radius: 5px;
+        }
+        .stat-row { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; margin: 30px 0; }
+        .stat { text-align: center; }
+        .stat-num { font-size: 3em; color: #00ff88; }
+        .stat-label { color: #888; }
+    </style>
+</head>
+<body>
+
+<!-- SLIDE 1: Title -->
+<div class="slide" id="slide1">
+    <pre class="ascii-art">
+    ██████╗ ███████╗██████╗ ██╗███████╗     ██████╗██╗      ██████╗ ██╗   ██╗██████╗ 
+    ██╔══██╗██╔════╝██╔══██╗██║██╔════╝    ██╔════╝██║     ██╔═══██╗██║   ██║██╔══██╗
+    ██████╔╝█████╗  ██║  ██║██║███████╗    ██║     ██║     ██║   ██║██║   ██║██║  ██║
+    ██╔══██╗██╔══╝  ██║  ██║██║╚════██║    ██║     ██║     ██║   ██║██║   ██║██║  ██║
+    ██║  ██║███████╗██████╔╝██║███████║    ╚██████╗███████╗╚██████╔╝╚██████╔╝██████╔╝
+    ╚═╝  ╚═╝╚══════╝╚═════╝ ╚═╝╚══════╝     ╚═════╝╚══════╝ ╚═════╝  ╚═════╝ ╚═════╝ 
+    </pre>
+    <h1>Operations Boilerplate</h1>
+    <h2>Accelerating Tool Development for Redis Cloud</h2>
+    <p style="text-align: center; margin-top: 30px;">
+        <span class="highlight">One codebase</span> → <span class="warning">All integrations</span> → <span style="color:#e94560">Instant productivity</span>
+    </p>
+</div>
+
+<!-- SLIDE 2: The Problem -->
+<div class="slide" id="slide2">
+    <h1>🔥 The Problem We're Solving</h1>
+    <pre class="ascii-art" style="font-size: 8px;">
+    ┌─────────────────────────────────────────────────────────────────────────────┐
+    │                           BEFORE: The Old Way                                │
+    │                                                                              │
+    │   Project A          Project B          Project C          Project D         │
+    │   ┌───────┐          ┌───────┐          ┌───────┐          ┌───────┐        │
+    │   │Grafana│          │Grafana│          │Grafana│          │Grafana│        │
+    │   │ code  │          │ code  │          │ code  │          │ code  │        │
+    │   ├───────┤          ├───────┤          ├───────┤          ├───────┤        │
+    │   │ Jira  │          │ SMDB  │          │ Jira  │          │ AWS   │        │
+    │   │ code  │          │ code  │          │ code  │          │ code  │        │
+    │   ├───────┤          ├───────┤          ├───────┤          ├───────┤        │
+    │   │ SMDB  │          │ Glean │          │ AWS   │          │ Glean │        │
+    │   │ code  │          │ code  │          │ code  │          │ code  │        │
+    │   └───────┘          └───────┘          └───────┘          └───────┘        │
+    │       ↓                  ↓                  ↓                  ↓             │
+    │   [DUPLICATE]        [DUPLICATE]        [DUPLICATE]        [DUPLICATE]       │
+    │   [INCONSISTENT]     [DIFFERENT]        [OUTDATED]         [BROKEN]          │
+    └─────────────────────────────────────────────────────────────────────────────┘
+    </pre>
+    <div class="box">
+        <h3>Every new project meant:</h3>
+        <ul>
+            <li>Copy-pasting connection code from old projects</li>
+            <li>Hunting for credentials and configuration</li>
+            <li>Debugging authentication issues... again</li>
+            <li>Different patterns across different tools</li>
+            <li><span class="warning">Hours wasted before writing actual business logic</span></li>
+        </ul>
+    </div>
+</div>
+
+<!-- SLIDE 3: The Solution -->
+<div class="slide" id="slide3">
+    <h1>✨ The Solution: Unified Boilerplate</h1>
+    <pre class="ascii-art" style="font-size: 9px;">
+                    ┌──────────────────────────────────────────┐
+                    │      OPERATIONS BOILERPLATE              │
+                    │  ┌────────────────────────────────────┐  │
+                    │  │     Pre-configured Connectors      │  │
+                    │  │  ┌──────┐ ┌──────┐ ┌──────┐       │  │
+                    │  │  │Grafana│ │ Jira │ │ SMDB │       │  │
+                    │  │  └──────┘ └──────┘ └──────┘       │  │
+                    │  │  ┌──────┐ ┌──────┐ ┌──────┐       │  │
+                    │  │  │ AWS  │ │ GCP  │ │Glean │       │  │
+                    │  │  └──────┘ └──────┘ └──────┘       │  │
+                    │  │  ┌──────┐ ┌──────┐ ┌──────┐       │  │
+                    │  │  │Squad │ │ Fire │ │Moose │       │  │
+                    │  │  └──────┘ └──────┘ └──────┘       │  │
+                    │  └────────────────────────────────────┘  │
+                    └──────────────────────────────────────────┘
+                                       │
+              ┌────────────────────────┼────────────────────────┐
+              ▼                        ▼                        ▼
+        ┌──────────┐            ┌──────────┐            ┌──────────┐
+        │ Tool A   │            │ Tool B   │            │ Tool C   │
+        │ Customer │            │ Metrics  │            │ Incident │
+        │ Analysis │            │ Dashboard│            │ Response │
+        └──────────┘            └──────────┘            └──────────┘
+    </pre>
+    <div class="stat-row">
+        <div class="stat"><div class="stat-num">10</div><div class="stat-label">Connectors Ready</div></div>
+        <div class="stat"><div class="stat-num">1</div><div class="stat-label">Config File</div></div>
+        <div class="stat"><div class="stat-num">0</div><div class="stat-label">Setup Headaches</div></div>
+    </div>
+</div>
+
+<!-- SLIDE 4: What's Connected -->
+<div class="slide" id="slide4">
+    <h1>🔌 What's Connected</h1>
+    <div class="connector-grid">
+        <div class="connector-card">
+            <h4>📊 Grafana</h4>
+            <p>Prometheus metrics, cluster dashboards, performance data</p>
+        </div>
+        <div class="connector-card">
+            <h4>🧠 Glean AI</h4>
+            <p>Redis knowledge base, troubleshooting, runbooks</p>
+        </div>
+        <div class="connector-card">
+            <h4>🗄️ SMDB</h4>
+            <p>Subscription data, cluster info, customer details</p>
+        </div>
+        <div class="connector-card">
+            <h4>📋 Jira</h4>
+            <p>Ticket search, creation, updates, workflows</p>
+        </div>
+        <div class="connector-card">
+            <h4>☁️ AWS</h4>
+            <p>EC2, S3, CloudWatch, infrastructure access</p>
+        </div>
+        <div class="connector-card">
+            <h4>☁️ GCP</h4>
+            <p>Compute, storage, GCP infrastructure</p>
+        </div>
+        <div class="connector-card">
+            <h4>🚨 Squadcast</h4>
+            <p>Incident management, alerts, on-call</p>
+        </div>
+        <div class="connector-card">
+            <h4>🔥 Firehydrant</h4>
+            <p>Incident response, status pages</p>
+        </div>
+        <div class="connector-card">
+            <h4>🦌 WildMoose</h4>
+            <p>AI debugging playbooks, automated investigation</p>
+        </div>
+        <div class="connector-card">
+            <h4>📤 Cloud Exporter</h4>
+            <p>Cloud infrastructure metrics export</p>
+        </div>
+    </div>
+</div>
+
+<!-- SLIDE 5: Time Savings -->
+<div class="slide" id="slide5">
+    <h1>⏱️ Time Savings</h1>
+    <pre class="ascii-art" style="font-size: 12px; color: #ffd700;">
+    ╔═══════════════════════════════════════════════════════════════════╗
+    ║                    BEFORE vs AFTER                                 ║
+    ╠═══════════════════════════════════════════════════════════════════╣
+    ║                                                                    ║
+    ║   BEFORE: Starting a new operations tool                          ║
+    ║   ─────────────────────────────────────────                       ║
+    ║   • Find old project with Grafana code........... 30 min          ║
+    ║   • Copy and adapt connection code............... 45 min          ║
+    ║   • Hunt for credentials......................... 20 min          ║
+    ║   • Debug authentication issues.................. 60 min          ║
+    ║   • Repeat for each service needed............... 2-4 hours       ║
+    ║   ─────────────────────────────────────────────────────           ║
+    ║   TOTAL: 4-6 HOURS before writing business logic                  ║
+    ║                                                                    ║
+    ║   AFTER: Using the boilerplate                                    ║
+    ║   ─────────────────────────────────────────                       ║
+    ║   • Copy boilerplate folder...................... 10 sec          ║
+    ║   • Import connectors............................ 10 sec          ║
+    ║   • Start writing business logic................. IMMEDIATELY     ║
+    ║   ─────────────────────────────────────────────────────           ║
+    ║   TOTAL: 20 SECONDS                                               ║
+    ║                                                                    ║
+    ╚═══════════════════════════════════════════════════════════════════╝
+    </pre>
+    <div class="time-saved">99% Time Reduction</div>
+    <p style="text-align: center;">From hours of setup to seconds of productivity</p>
+</div>
+
+<!-- SLIDE 6: How It Works -->
+<div class="slide" id="slide6">
+    <h1>⚙️ How It Works</h1>
+    <pre class="flow-diagram">
+    ┌─────────────────────────────────────────────────────────────────────────────────┐
+    │                              ARCHITECTURE                                        │
+    │                                                                                  │
+    │   ┌─────────────┐         ┌─────────────────────────────────────────────────┐   │
+    │   │             │         │              CONNECTORS LAYER                    │   │
+    │   │   config/   │────────▶│  ┌─────────────┐  ┌─────────────┐              │   │
+    │   │   .env      │         │  │GrafanaClient│  │ GleanClient │  ...         │   │
+    │   │             │         │  └──────┬──────┘  └──────┬──────┘              │   │
+    │   └─────────────┘         │         │                │                      │   │
+    │         │                 │         ▼                ▼                      │   │
+    │         │                 │  ┌─────────────────────────────────────────┐   │   │
+    │         ▼                 │  │         EXTERNAL SERVICES               │   │   │
+    │   ┌─────────────┐         │  │  Grafana │ Glean │ SMDB │ Jira │ AWS   │   │   │
+    │   │  settings.  │         │  └─────────────────────────────────────────┘   │   │
+    │   │    py       │         └─────────────────────────────────────────────────┘   │
+    │   └─────────────┘                              │                                 │
+    │                                                ▼                                 │
+    │                                    ┌─────────────────────┐                      │
+    │                                    │   YOUR APPLICATION  │                      │
+    │                                    │   (Business Logic)  │                      │
+    │                                    └─────────────────────┘                      │
+    └─────────────────────────────────────────────────────────────────────────────────┘
+    </pre>
+    <div class="box">
+        <h3>Simple 3-Step Pattern:</h3>
+        <div class="code-block">
+# 1. Import what you need
+from connectors import GrafanaClient, RedisKnowledge, JiraClient
+
+# 2. Create client (auto-configured from .env)
+grafana = GrafanaClient()
+kb = RedisKnowledge()
+
+# 3. Use it!
+metrics = grafana.get_cluster_metrics("cluster.fqdn.com")
+answer = kb.troubleshoot("high latency issue")
+        </div>
+    </div>
+</div>
+
+<!-- SLIDE 7: AI-Powered Knowledge -->
+<div class="slide" id="slide7">
+    <h1>🧠 AI-Powered Redis Knowledge</h1>
+    <pre class="ascii-art" style="font-size: 9px;">
+        ┌────────────────────────────────────────────────────────────────┐
+        │                    RedisKnowledge + Glean                       │
+        │                                                                 │
+        │    ┌─────────────┐                      ┌──────────────────┐   │
+        │    │   Your      │    "How do I fix    │                  │   │
+        │    │   Question  │───────────────────▶ │   Glean AI       │   │
+        │    │             │    high latency?"   │   (Redis KB)     │   │
+        │    └─────────────┘                      └────────┬─────────┘   │
+        │                                                  │             │
+        │                                                  ▼             │
+        │    ┌─────────────────────────────────────────────────────┐    │
+        │    │  📚 Searches internal docs, runbooks, past tickets  │    │
+        │    │  🔍 Finds relevant troubleshooting guides           │    │
+        │    │  💡 Returns actionable answer with sources          │    │
+        │    └─────────────────────────────────────────────────────┘    │
+        └────────────────────────────────────────────────────────────────┘
+    </pre>
+    <div class="box">
+        <h3>Built-in Methods:</h3>
+        <div class="code-block">
+kb = RedisKnowledge()
+
+# Ask any Redis question
+kb.ask("How does Active-Active handle conflicts?")
+
+# Get troubleshooting guidance
+kb.troubleshoot("customer seeing high connections")
+
+# Explain concepts
+kb.explain_concept("RediSearch indexing")
+
+# Find runbooks
+kb.get_runbook("cluster failover procedure")
+
+# Customer-specific context
+kb.customer_context("Acme Corp", issue="connection timeouts")
+        </div>
+    </div>
+</div>
+
+<!-- SLIDE 8: Real Example -->
+<div class="slide" id="slide8">
+    <h1>📊 Real Example: Cluster Metrics</h1>
+    <div class="box">
+        <h3>One line of code to get all cluster metrics:</h3>
+        <div class="code-block">
+from connectors import GrafanaClient
+
+client = GrafanaClient()
+result = client.get_cluster_metrics("c42998.us-east-1-mz.ec2.cloud.rlrcp.com")
+
+# Returns formatted data for all databases:
+# ┌──────────────────────────────────────────────────────────┐
+# │ Database: staging-main-app-data (BDB 13437292)           │
+# ├──────────────────────────────────────────────────────────┤
+# │ Connections:     578                                     │
+# │ Ops/sec:         354 ops/s                               │
+# │ Used Memory:     44.33 GB                                │
+# │ Avg Latency:     0.191 ms                                │
+# │ Read Hit Ratio:  87.8%                                   │
+# │ Write Hit Ratio: 77.0%                                   │
+# │ Total Keys:      4,349,004                               │
+# └──────────────────────────────────────────────────────────┘
+        </div>
+    </div>
+</div>
+
+<!-- SLIDE 9: Use Cases -->
+<div class="slide" id="slide9">
+    <h1>🎯 Use Cases</h1>
+    <pre class="ascii-art" style="font-size: 10px; color: #e94560;">
+    ╔════════════════════════════════════════════════════════════════════════╗
+    ║                        WHAT CAN YOU BUILD?                              ║
+    ╠════════════════════════════════════════════════════════════════════════╣
+    ║                                                                         ║
+    ║  🔍 CUSTOMER INVESTIGATION TOOLS                                        ║
+    ║     └─ Pull SMDB data + Grafana metrics + Jira history in one view     ║
+    ║                                                                         ║
+    ║  📈 AUTOMATED HEALTH DASHBOARDS                                         ║
+    ║     └─ Real-time cluster metrics with alerting thresholds              ║
+    ║                                                                         ║
+    ║  🤖 AI-ASSISTED TROUBLESHOOTING                                         ║
+    ║     └─ Combine Glean knowledge with live metrics for diagnosis         ║
+    ║                                                                         ║
+    ║  📋 TICKET AUTOMATION                                                   ║
+    ║     └─ Auto-create Jira tickets with enriched context                  ║
+    ║                                                                         ║
+    ║  🚨 INCIDENT RESPONSE TOOLS                                             ║
+    ║     └─ Squadcast + Firehydrant + metrics correlation                   ║
+    ║                                                                         ║
+    ║  📊 REPORTING & ANALYTICS                                               ║
+    ║     └─ Cross-reference multiple data sources for insights              ║
+    ║                                                                         ║
+    ╚════════════════════════════════════════════════════════════════════════╝
+    </pre>
+</div>
+
+<!-- SLIDE 10: Getting Started -->
+<div class="slide" id="slide10">
+    <h1>🚀 Getting Started</h1>
+    <pre class="flow-diagram" style="font-size: 14px;">
+    ┌─────────────────────────────────────────────────────────────────────┐
+    │                         QUICK START                                  │
+    │                                                                      │
+    │   STEP 1: Copy the boilerplate                                      │
+    │   ─────────────────────────────────────────────────                 │
+    │   $ cp -r boilerplate_example my_new_tool                           │
+    │                                                                      │
+    │   STEP 2: Credentials are already configured                        │
+    │   ─────────────────────────────────────────────────                 │
+    │   config/.env contains all service credentials                      │
+    │                                                                      │
+    │   STEP 3: Start building!                                           │
+    │   ─────────────────────────────────────────────────                 │
+    │   from connectors import GrafanaClient, RedisKnowledge              │
+    │   # Your code here...                                               │
+    │                                                                      │
+    └─────────────────────────────────────────────────────────────────────┘
+    </pre>
+    <div class="box" style="border-color: #00ff88;">
+        <h3 style="color: #00ff88;">Project Structure:</h3>
+        <div class="code-block">
+boilerplate_example/
+├── config/
+│   ├── .env              # All credentials (gitignored)
+│   ├── .env.example      # Template for new setups
+│   └── settings.py       # Configuration classes
+├── connectors/
+│   ├── grafana_client.py
+│   ├── glean_client.py
+│   ├── redis_knowledge.py
+│   ├── smdb_client.py
+│   ├── jira_client.py
+│   └── ...
+├── CLAUDE.md             # AI assistant instructions
+└── main.py               # Connection test script
+        </div>
+    </div>
+</div>
+
+<!-- SLIDE 11: Summary -->
+<div class="slide" id="slide11">
+    <pre class="ascii-art">
+    ███████╗██╗   ██╗███╗   ███╗███╗   ███╗ █████╗ ██████╗ ██╗   ██╗
+    ██╔════╝██║   ██║████╗ ████║████╗ ████║██╔══██╗██╔══██╗╚██╗ ██╔╝
+    ███████╗██║   ██║██╔████╔██║██╔████╔██║███████║██████╔╝ ╚████╔╝
+    ╚════██║██║   ██║██║╚██╔╝██║██║╚██╔╝██║██╔══██║██╔══██╗  ╚██╔╝
+    ███████║╚██████╔╝██║ ╚═╝ ██║██║ ╚═╝ ██║██║  ██║██║  ██║   ██║
+    ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝
+    </pre>
+    <h1>Key Takeaways</h1>
+    <div class="box">
+        <ul style="font-size: 1.4em;">
+            <li><span class="highlight">Unified codebase</span> - All integrations in one place</li>
+            <li><span class="highlight">Pre-configured</span> - Credentials and auth handled</li>
+            <li><span class="highlight">Consistent patterns</span> - Same interface across all services</li>
+            <li><span class="highlight">AI-enhanced</span> - Glean integration for Redis knowledge</li>
+            <li><span class="highlight">Time savings</span> - Hours → Seconds for new projects</li>
+            <li><span class="highlight">Maintainable</span> - Fix once, benefit everywhere</li>
+        </ul>
+    </div>
+    <h2 style="margin-top: 40px;">Stop reinventing the wheel.</h2>
+    <h2 style="color: #e94560;">Start building solutions.</h2>
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+    <a href="#slide1">↑ Top</a>
+</div>
+
+<script>
+    // Smooth scrolling for navigation
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
+
